@@ -1,0 +1,14 @@
+requests>=2.31
+pandas>=2.0
+pyarrow>=14.0
+yfinance>=0.2.40
+pytest>=8.0
+
+# Company logos. Pillow normalises every icon to one square canvas; svglib +
+# rlPyCairo rasterise the vector originals some companies publish, which is
+# the difference between a sharp mark and a 16px favicon upscaled eight times.
+# All three are optional at runtime — a missing one costs logo quality and
+# nothing else.
+pillow>=10.0
+svglib>=1.5
+rlPyCairo>=0.3

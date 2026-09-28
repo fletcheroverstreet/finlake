@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finlake"
+version = "0.13.0"
+description = "A point-in-time financial data layer: prices, fundamentals, filings, and macro, cached locally and queryable as of any historical date."
+requires-python = ">=3.12"
+readme = "README.md"
+license = {text = "MIT"}
+dependencies = [
+    "requests>=2.31",
+    "pandas>=2.0",
+    "pyarrow>=14.0",
+    "yfinance>=0.2.40",
+]
+
+[tool.setuptools.packages.find]
+include = ["finlake*"]
+
+[tool.pytest.ini_options]
+# `smoke_test.py` and `check.py` at the repo root are hand-run diagnostics that
+# talk to the real cache, not tests. The default `*_test.py` glob collected
+# smoke_test.py, and merely IMPORTING it bound finlake's DATA_DIR to the real
+# cache before any test module could redirect it -- see conftest.py.
+testpaths = ["tests"]
+python_files = ["test_*.py"]
