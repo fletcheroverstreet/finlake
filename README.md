@@ -1,4 +1,4 @@
-# finlake
+![finlake: a point-in-time financial data layer](docs/media/banner.png)
 
 A point-in-time financial data layer. One module for prices, fundamentals,
 filings, market data, news, and macro — cached locally, queryable as of any
@@ -8,6 +8,8 @@ Built as Tier 0 for a suite of equity-analysis tools, so that every project
 above it is a few hundred lines instead of a new codebase. **lodestar**, the
 scoring engine and web hub, is built on it and published as its own
 repository.
+
+![How finlake and lodestar fit together](docs/media/stack.png)
 
 ---
 
@@ -29,6 +31,9 @@ accession number and a later `filed`, sitting next to the original. So:
 WHERE filed <= '2019-03-14'   -- what a reader had that morning
 WHERE filed <= DATE('now')    -- latest known
 ```
+
+![An as_of cursor moving through time: the same query returns the original
+10-K, then the amendment, then the restatement](docs/media/point-in-time.gif)
 
 Same table, same query, one changed bound. If you build the fact table with
 grain `(cik, tag, period_end, value)` you will have to tear it out and rebuild
@@ -203,6 +208,9 @@ to be decided per fiscal year, not per company.
 **3. Never difference a balance sheet.** Assets at Q3-end minus Assets at
 Q2-end is a change in assets, not "Q3 assets". XBRL marks these — instant facts
 have no `start`. Detect it from the data; don't hardcode a tag list.
+
+![Q4 is never filed: discrete quarters derived by differencing the
+year-to-date chain](docs/media/quarterize.png)
 
 **4. There is no tag called "Revenue".** Apple uses one tag, a 2013 filing uses
 another, a bank uses a third. Code against a single tag and you get `NaN` for a
