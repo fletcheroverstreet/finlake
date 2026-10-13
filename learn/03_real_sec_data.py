@@ -94,7 +94,7 @@ def main(ticker="AAPL"):
         print(f"{period:<24} {days:>5} {f['val']/1e6:>12,.0f} "
               f"{f['filed']:<12} {f['form']}")
 
-    print(f"""
+    print("""
 NOW LOOK AT WHAT YOU JUST PRINTED — this is the whole problem in one table.
 
 1. The `days` column is not always ~90. You'll see 90-ish, 180-ish, 270-ish

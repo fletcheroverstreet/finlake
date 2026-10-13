@@ -25,7 +25,6 @@ a revenue figure the company never reported and no analyst would recognise.
 
 from __future__ import annotations
 
-import datetime as dt
 from dataclasses import dataclass, field
 from typing import Callable, Literal
 

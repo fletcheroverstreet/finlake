@@ -1,0 +1,26 @@
+# Credentials. Copy .env.example to .env; never commit the real one.
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Media build tooling (docs/media/src)
+node_modules/
