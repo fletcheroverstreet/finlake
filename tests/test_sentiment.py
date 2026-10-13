@@ -210,17 +210,3 @@ def test_label_boundaries_match_the_declared_band():
     assert lexicon.label_for(-band) == "neutral"
     assert lexicon.label_for(-band - 0.01) == "negative"
     assert lexicon.label_for(None) is None
-
-
-def test_the_ui_and_the_scorer_agree_on_where_neutral_ends():
-    """The hub draws its own chips from its own constant. If the two drift, a
-    headline is labelled neutral on one page and negative on the next."""
-    import sys
-    from pathlib import Path
-
-    root = Path(__file__).resolve().parents[2] / "lodestar"
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
-    from lodestar.ui import theme
-
-    assert theme.TONE_NEUTRAL_BAND == lexicon.NEUTRAL_BAND

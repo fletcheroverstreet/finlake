@@ -26,3 +26,11 @@ include = ["finlake*"]
 # cache before any test module could redirect it -- see conftest.py.
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+# Errors, not style: undefined names, unused imports, syntax and runtime-error
+# patterns. The same set CI enforces.
+select = ["E4", "E7", "E9", "F", "PLE"]

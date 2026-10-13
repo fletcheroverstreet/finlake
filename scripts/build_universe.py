@@ -54,7 +54,7 @@ _TICKER_OK = re.compile(r"^[A-Z][A-Z0-9\-]{0,6}$")
 
 
 def normalize(ticker: str) -> str:
-    return ticker.strip().upper().replace(".", "-").replace("​", "")
+    return ticker.strip().upper().replace(".", "-").replace("\u200b", "")
 
 
 def scrape(url: str) -> list[dict]:

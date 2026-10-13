@@ -12,7 +12,6 @@ import tempfile
 
 os.environ["FINLAKE_HOME"] = tempfile.mkdtemp(prefix="finlake_test_refresh_")
 
-import pytest  # noqa: E402
 
 from finlake import refresh, store  # noqa: E402
 

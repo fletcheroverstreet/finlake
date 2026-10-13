@@ -7,7 +7,6 @@ refactor can't quietly reintroduce them.
 
 import os
 import tempfile
-from pathlib import Path
 
 os.environ["FINLAKE_HOME"] = tempfile.mkdtemp(prefix="finlake_test_")
 
@@ -123,6 +122,48 @@ def test_restatement_detection():
     print("  ok  restatement detection")
 
 
+def test_reloading_a_balance_sheet_fact_does_not_duplicate_it():
+    """Regression: an instant fact has a NULL period_start, and SQLite treats
+    NULLs in a primary key as distinct, so INSERT OR IGNORE never fired for
+    one. Every companyfacts reload appended another copy of the whole balance
+    sheet, and restatements() listed each version once per reload."""
+    conn = fresh_db()
+    assets = fact(1, "Assets", "2018-12-31", 500, "0001-19-000001", "2019-02-01")
+    revenue = fact(1, "Revenues", "2018-12-31", 1000, "0001-19-000001",
+                   "2019-02-01", start="2018-01-01")
+    for _ in range(3):
+        store.upsert_many(conn, "facts", FACT_COLS, [assets, revenue])
+    conn.commit()
+
+    counts = dict(conn.execute(
+        "SELECT tag, COUNT(*) FROM facts GROUP BY tag").fetchall())
+    assert counts == {"Assets": 1, "Revenues": 1}
+    assert len(pit.restatement_history(conn, 1, "Assets", "2018-12-31")) == 1
+
+
+def test_init_db_removes_duplicates_from_a_cache_built_before_the_fix():
+    """An existing cache already holds the duplicates, and the unique index
+    cannot be created over them. init_db sheds the copies -- and only the
+    copies: a genuine restatement (a different accn) must survive."""
+    conn = fresh_db()
+    conn.execute("DROP INDEX IF EXISTS ux_facts_instant")
+    original = fact(1, "Assets", "2018-12-31", 500, "0001-19-000001", "2019-02-01")
+    restated = fact(1, "Assets", "2018-12-31", 450, "0001-21-000001", "2021-02-01")
+    for _ in range(3):
+        store.upsert_many(conn, "facts", FACT_COLS, [original, restated])
+    conn.commit()
+    assert conn.execute("SELECT COUNT(*) FROM facts").fetchone()[0] == 6
+
+    store.init_db(conn)
+
+    history = pit.restatement_history(conn, 1, "Assets", "2018-12-31")
+    assert [h["val"] for h in history] == [500, 450]
+    # And the hole stays closed for writes after the migration.
+    store.upsert_many(conn, "facts", FACT_COLS, [original])
+    conn.commit()
+    assert conn.execute("SELECT COUNT(*) FROM facts").fetchone()[0] == 2
+
+
 if __name__ == "__main__":
     store.init_db()
     for fn in [
@@ -131,6 +172,8 @@ if __name__ == "__main__":
         test_universe_excludes_unlisted_and_dead,
         test_macro_vintage,
         test_restatement_detection,
+        test_reloading_a_balance_sheet_fact_does_not_duplicate_it,
+        test_init_db_removes_duplicates_from_a_cache_built_before_the_fix,
     ]:
         fn()
     print("\nall PIT tests passed")

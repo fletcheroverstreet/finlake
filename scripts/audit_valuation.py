@@ -43,7 +43,7 @@ for _stream in (sys.stdout, sys.stderr):
         pass
 
 import finlake  # noqa: E402
-from finlake import quality, store  # noqa: E402
+from finlake import store  # noqa: E402
 from finlake.sources import market  # noqa: E402
 
 # How far our market cap may sit from the provider's before it is a finding.
@@ -243,7 +243,7 @@ def main(argv: list[str] | None = None) -> int:
             if not a.quiet and i % 50 == 0:
                 print(f"  {i}/{len(tickers)} ...")
 
-    print(f"\nenterprise value == market cap + net debt")
+    print("\nenterprise value == market cap + net debt")
     print(f"  {identity['ok']}/{identity['ok'] + identity['bad']} clean"
           f"   ({identity['n/a']} not computable)")
     print(f"market cap within {a.tolerance:.0%} of the provider's")

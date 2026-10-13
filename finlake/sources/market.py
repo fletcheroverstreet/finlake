@@ -33,7 +33,7 @@ import datetime as dt
 import sqlite3
 from typing import Any, Iterable
 
-from .. import config, store
+from .. import store
 from ..http_client import _limiter
 from ._provider import quiet_provider
 

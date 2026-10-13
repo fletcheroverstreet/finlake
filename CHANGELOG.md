@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **Every reload of a company's facts duplicated its whole balance sheet.**
+  `facts`' primary key includes `period_start`, which is NULL for an instant
+  fact, and SQLite treats NULLs in a primary key as distinct — so
+  `INSERT OR IGNORE` deduplicated every flow fact and no balance-sheet fact.
+  Each `build.py` re-run and each new filing the refresh loop picked up
+  appended another copy of every instant fact the company had ever filed.
+  Values were never wrong (the as-of query collapses identical rows), but the
+  table grew without bound and `restatements()` listed each version once per
+  reload. A partial unique index now closes the hole; `init_db` removes the
+  existing copies once, before creating it, and keeps every genuine version.
+
+### Changed
+
+- **The repository root is the project root.** The package, tests and
+  scripts had been uploaded one folder down, so the documented
+  `pip install -e .` failed from a fresh clone and lodestar's
+  `../finlake/universe/...` path resolved to nothing.
+- Added `.env.example` (the README has always told you to copy it; it did not
+  exist), a `.gitignore`, and CI running lint and the test suite on Python
+  3.12 and 3.13.
+
 ## 0.13.0 — 2026-08-13 — what the loop refreshes, and what debt it finds
 
 Started from a daemon printing several thousand HTTP 404 bodies per sweep.

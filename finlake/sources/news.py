@@ -38,7 +38,7 @@ from typing import Callable, Iterable
 from urllib.parse import quote_plus
 
 from .. import config, lexicon, store
-from ..http_client import _limiter, sec_get
+from ..http_client import _limiter
 
 NEWS_RATE_LIMIT = 1.0     # per host. Feeds are small; there is no hurry.
 

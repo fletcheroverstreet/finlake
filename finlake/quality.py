@@ -507,7 +507,6 @@ def check_restatements(conn: sqlite3.Connection, ticker: str, cik: int | None,
 def check_ticker(ticker: str, *, as_of: str | None = None,
                  years: int = 12) -> list[Finding]:
     """Every check, for one company."""
-    from . import api
 
     try:
         data = statements.periods(ticker, freq="quarterly", years=years, as_of=as_of)

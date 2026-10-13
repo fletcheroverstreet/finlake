@@ -449,12 +449,59 @@ def _apply_migrations(conn: sqlite3.Connection) -> None:
             pass    # a concurrent process added it first; nothing to do
 
 
+def _dedupe_instant_facts(conn: sqlite3.Connection) -> None:
+    """Make re-loading a balance-sheet fact a no-op, as it always claimed to be.
+
+    `facts`' primary key includes `period_start`, which is NULL for every
+    instant fact — and SQLite treats NULLs in a non-INTEGER primary key as
+    distinct from one another. So `INSERT OR IGNORE` deduplicated every flow
+    fact and none of the balance-sheet ones: each reload of a company's
+    companyfacts (every `build.py` re-run, and every new filing the refresh
+    loop picks up) appended another copy of every instant fact it had ever
+    filed. Queries stayed correct, because the as-of `ROW_NUMBER` collapses
+    identical rows, but the table grew by thousands of duplicate rows per
+    company per filing and `restatements()` listed each version several times.
+
+    A partial unique index closes the hole for new writes. A cache built
+    before it existed has to shed its duplicates first or the index cannot be
+    created; the rows removed are byte-identical to the one kept (same filing,
+    same tag, same period), so no version of any number is lost — this is not
+    the `UPDATE facts` the design note forbids.
+
+    Runs once. Afterwards the index exists and this is one catalog lookup.
+    """
+    if conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type = 'index' "
+        "AND name = 'ux_facts_instant'"
+    ).fetchone():
+        return
+    try:
+        conn.execute(
+            """DELETE FROM facts
+               WHERE period_start IS NULL
+                 AND rowid NOT IN (
+                     SELECT MIN(rowid) FROM facts
+                     WHERE period_start IS NULL
+                     GROUP BY cik, taxonomy, tag, unit, period_end, accn)"""
+        )
+        conn.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS ux_facts_instant "
+            "ON facts (cik, taxonomy, tag, unit, period_end, accn) "
+            "WHERE period_start IS NULL"
+        )
+    except sqlite3.OperationalError:
+        # Another process holds the write lock. Nothing is half-done -- both
+        # statements share one transaction -- and the next init_db retries.
+        conn.rollback()
+
+
 def init_db(conn: sqlite3.Connection | None = None) -> None:
     own = conn is None
     conn = conn or connect()
     try:
         conn.executescript(SCHEMA)
         _apply_migrations(conn)
+        _dedupe_instant_facts(conn)
         conn.commit()
     finally:
         if own:

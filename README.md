@@ -1,5 +1,7 @@
 ![finlake: a point-in-time financial data layer](docs/media/banner.png)
 
+[![CI](https://github.com/fletcheroverstreet/finlake/actions/workflows/ci.yml/badge.svg)](https://github.com/fletcheroverstreet/finlake/actions/workflows/ci.yml)
+
 A point-in-time financial data layer. One module for prices, fundamentals,
 filings, market data, news, and macro — cached locally, queryable as of any
 historical date.
@@ -242,7 +244,7 @@ independent source. Run it after any change that touches valuation.
 python -m pytest -q
 ```
 
-259 tests. All offline, all synthetic, no credentials needed. They encode the
+260 tests. All offline, all synthetic, no credentials needed. They encode the
 failure modes above as assertions so a refactor can't quietly reintroduce them:
 
 - a 2021 restatement is invisible to an `as_of="2019-03-14"` query

@@ -145,19 +145,6 @@ def test_vwap_returns_none_when_no_bars_in_window():
     print("  ok  VWAP returns None rather than dividing by zero")
 
 
-if __name__ == "__main__":
-    store.init_db()
-    for fn in [
-        test_vwap_typical_price_hand_computed,
-        test_vwap_close_price_hand_computed,
-        test_vwap_respects_the_window,
-        test_vwap_applies_split_adjustment,
-        test_vwap_returns_none_when_no_bars_in_window,
-    ]:
-        fn()
-    print("\nall VWAP tests passed")
-
-
 def test_dividends_never_adjust_volume():
     """Regression: adjust='total' divided historical VOLUME by the
     dividend-inclusive price factor.
