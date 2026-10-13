@@ -244,7 +244,7 @@ independent source. Run it after any change that touches valuation.
 python -m pytest -q
 ```
 
-261 tests. All offline, all synthetic, no credentials needed. They encode the
+260 tests. All offline, all synthetic, no credentials needed. They encode the
 failure modes above as assertions so a refactor can't quietly reintroduce them:
 
 - a 2021 restatement is invisible to an `as_of="2019-03-14"` query
