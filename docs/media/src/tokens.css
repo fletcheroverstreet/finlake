@@ -1,0 +1,26 @@
+/* Tokens copied from lodestar/ui/theme.py so the media matches the hub. */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=block');
+:root {
+  --navy-deep: #0a1628; --navy: #10203a; --navy-raised: #17294a; --navy-high: #1d3358;
+  --border: #22375c; --border-strong: #33507f;
+  --ink: #e6edf7; --ink-muted: #8ba0bf; --ink-faint: #5f76a0;
+  --teal: #2dd4bf; --teal-dim: #1fa896; --teal-wash: #0e2a2a;
+  --red: #ff4d5a; --red-wash: #2a1620; --grey-wash: #1a2b47;
+  --blue: #3987e5; --orange: #d95926; --aqua: #199e70; --yellow: #c98500;
+  --magenta: #d55181; --violet: #9085e9;
+  --ui: 'Inter', -apple-system, 'Segoe UI', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: transparent; }
+body { font-family: var(--ui); color: var(--ink); -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'tnum' 1, 'cv11' 1; }
+.mono, code, .code, table, .q, .label, .chip { font-variant-ligatures: none; }
+body.flat .frame.rounded { border-radius: 0; border: none; }
+.frame { position: absolute; inset: 0; background: var(--navy-deep); overflow: hidden; }
+.frame.rounded { border-radius: 18px; border: 1px solid var(--border); }
+.mono { font-family: var(--mono); }
+.label { font-family: var(--mono); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-muted); }
+.grid-bg { position: absolute; inset: 0;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px; opacity: .22; }

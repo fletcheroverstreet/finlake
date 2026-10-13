@@ -1,0 +1,65 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="tokens.css">
+<style>
+  .frame { padding: 44px 56px; }
+  .eyebrow { color: var(--blue); }
+  h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; margin-top: 10px; }
+  h1 span { color: var(--ink-muted); font-weight: 500; }
+  .chart { position: relative; margin-top: 30px; margin-left: 210px; height: 362px; }
+  .sec { position: absolute; left: -210px; font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); }
+  .months { position: absolute; left: 0; right: 0; top: 0; height: 18px; }
+  .months span { position: absolute; transform: translateX(-50%); font-family: var(--mono); font-size: 12px; color: var(--ink-faint); }
+  .vline { position: absolute; top: 24px; bottom: 0; width: 1px; background: var(--border); }
+  .row { position: absolute; left: -210px; right: 0; height: 40px; display: flex; align-items: center; }
+  .row .name { width: 210px; font-family: var(--mono); font-size: 14px; color: var(--ink-muted); }
+  .row .name b { color: var(--ink); font-weight: 600; }
+  .bar { position: absolute; height: 34px; border-radius: 7px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px;
+    font-family: var(--mono); font-size: 14px; }
+  .filed { border: 1.5px solid var(--blue); background: #12284a; color: var(--ink); }
+  .filed .k { color: var(--ink-muted); }
+  .derived { border: 1.5px solid var(--teal-dim); background: var(--teal-wash); color: var(--ink); flex-direction: column; justify-content: center; align-items: flex-start; height: 62px; gap: 3px; }
+  .derived .f { color: var(--teal); font-size: 13px; }
+  .derived .v { font-size: 17px; font-weight: 600; }
+  .q4 { border-color: var(--teal); box-shadow: inset 0 0 0 1px var(--teal); }
+  .divider { position: absolute; left: -210px; right: 0; height: 1px; background: var(--border-strong); }
+  .notes { position: absolute; left: 56px; right: 56px; bottom: 34px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .note { font-size: 15px; line-height: 1.45; color: var(--ink-muted); border-left: 3px solid var(--border-strong); padding-left: 14px; }
+  .note b { color: var(--ink); font-weight: 600; }
+</style></head>
+<body>
+<div class="frame rounded">
+  <div class="label eyebrow">finlake · quarterize.py</div>
+  <h1>Q4 is never filed. <span>Most filers tag year-to-date.</span></h1>
+  <div class="chart" id="c"></div>
+  <div class="notes">
+    <div class="note"><b>Difference the chain, per fiscal year.</b> Filers switch between discrete and YTD tagging across years within one company, so the strategy is decided per year, not per company.</div>
+    <div class="note"><b>Never difference a balance sheet.</b> Assets at Q3-end minus Q2-end is a change, not "Q3 assets". Instant facts have no start date and pass through untouched.</div>
+  </div>
+</div>
+<script>
+window.DURATION = 0;
+const c = document.getElementById('c');
+const W = c.clientWidth, mx = m => m / 12 * W;   // month boundary -> x
+const add = (html) => { c.insertAdjacentHTML('beforeend', html); };
+'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ').forEach((m, i) =>
+  add(`<div class="months"><span style="left:${mx(i + .5)}px">${m}</span></div>`));
+[0, 3, 6, 9, 12].forEach(m => add(`<div class="vline" style="left:${mx(m)}px"></div>`));
+add(`<div class="sec" style="top:30px">what the filings contain</div>`);
+const filed = [['10-Q', 'Q1', 3, '3 months', 100], ['10-Q', 'Q2', 6, 'YTD · 6 months', 215],
+               ['10-Q', 'Q3', 9, 'YTD · 9 months', 335], ['10-K', 'FY', 12, 'full year', 470]];
+filed.forEach(([form, p, m, k, v], i) => {
+  const top = 56 + i * 46;
+  add(`<div class="row" style="top:${top}px"><div class="name"><b>${form}</b> ${p}</div></div>`);
+  add(`<div class="bar filed" style="top:${top + 3}px;left:2px;width:${mx(m) - 6}px"><span class="k">${k}</span><span>${v}</span></div>`);
+});
+add(`<div class="divider" style="top:${56 + 4 * 46 + 12}px"></div>`);
+const dTop = 56 + 4 * 46 + 30;
+add(`<div class="sec" style="top:${dTop}px">what finlake derives</div>`);
+const derived = [['Q1', 'as filed', 100], ['Q2', 'H1 − Q1', 115], ['Q3', '9M − H1', 120], ['Q4', 'FY − 9M', 135]];
+derived.forEach(([q, f, v], i) => {
+  add(`<div class="bar derived ${q === 'Q4' ? 'q4' : ''}" style="top:${dTop + 24}px;left:${mx(i * 3) + 3}px;width:${mx(3) - 8}px">
+    <span class="f">${q} = ${f}</span><span class="v">${v}</span></div>`);
+});
+add(`<div class="row" style="top:${dTop + 36}px"><div class="name" style="line-height:1.5">discrete quarters<br><span style="color:var(--ink-faint);font-size:12px">revenue, illustrative</span></div></div>`);
+</script>
+</body></html>

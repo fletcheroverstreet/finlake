@@ -1,0 +1,168 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="tokens.css">
+<style>
+  .frame { padding: 44px 56px; }
+  .eyebrow { color: var(--blue); }
+  h1 { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; margin-top: 10px; }
+  h1 span { color: var(--ink-muted); font-weight: 500; }
+  .code { margin-top: 22px; font-family: var(--mono); font-size: 18px; color: var(--ink-muted);
+    background: var(--navy); border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; white-space: nowrap; }
+  .code .kw { color: var(--blue); } .code .s { color: var(--ink); }
+  .code .d { color: var(--navy-deep); background: var(--teal); border-radius: 5px; padding: 1px 6px; font-weight: 600; }
+  /* timeline */
+  .tl { position: relative; height: 112px; margin-top: 26px; }
+  .axis { position: absolute; left: 0; right: 0; top: 64px; height: 2px; background: var(--border-strong); }
+  .known { position: absolute; left: 0; top: 52px; height: 26px; background: var(--teal-wash); border-radius: 4px; }
+  .tick { position: absolute; top: 72px; font-family: var(--mono); font-size: 13px; color: var(--ink-faint); transform: translateX(-50%); }
+  .tick::before { content: ''; position: absolute; left: 50%; top: -12px; width: 1px; height: 8px; background: var(--border-strong); }
+  .mk { position: absolute; top: 55px; width: 20px; height: 20px; transform: translateX(-50%); }
+  .mk i { position: absolute; inset: 3px; transform: rotate(45deg); border: 2px solid var(--ink-faint); background: var(--navy-deep); border-radius: 2px; }
+  .mk b { position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: 12px; font-weight: 500; white-space: nowrap; color: var(--ink-faint); }
+  .cursor { position: absolute; top: 0; width: 0; height: 100px; }
+  .cursor .line { position: absolute; left: -1px; top: 26px; width: 2px; height: 70px; background: var(--teal); }
+  .cursor .chip { position: absolute; top: 0; transform: translateX(-50%); font-family: var(--mono); font-size: 13px; font-weight: 600;
+    color: var(--navy-deep); background: var(--teal); border-radius: 6px; padding: 3px 9px; white-space: nowrap; }
+  /* bottom */
+  .bottom { display: flex; gap: 24px; margin-top: 18px; }
+  .panel { background: var(--navy); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .tbl { flex: 1 1 auto; }
+  .phead { display: flex; justify-content: space-between; align-items: baseline; padding: 11px 18px; background: var(--navy-raised); border-bottom: 1px solid var(--border); }
+  .phead .t { font-family: var(--mono); font-weight: 600; font-size: 15px; }
+  .phead .s { font-family: var(--mono); font-size: 12px; color: var(--ink-faint); }
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 16px; }
+  th { text-align: left; font-weight: 500; color: var(--ink-faint); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 9px 18px 6px; }
+  td { padding: 12px 18px; border-top: 1px solid var(--border); white-space: nowrap; position: relative; }
+  .num { text-align: right; }
+  tr { position: relative; }
+  td:first-child::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--teal); opacity: var(--ans, 0); }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid; display: inline-block; min-width: 108px; text-align: center; }
+  .ans { flex: 0 0 330px; padding: 20px 24px; position: relative; }
+  .ans .k { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); }
+  .ans .layer { position: absolute; left: 24px; right: 24px; top: 82px; }
+  .ans .v { font-family: var(--mono); font-size: 46px; font-weight: 600; letter-spacing: -0.02em; }
+  .ans .n { margin-top: 6px; font-size: 15px; color: var(--ink-muted); line-height: 1.4; }
+  .foot { position: absolute; left: 56px; right: 56px; bottom: 30px; display: flex; justify-content: space-between; align-items: baseline; }
+  .foot .m { font-size: 17px; color: var(--ink-muted); } .foot .m b { color: var(--ink); font-weight: 600; }
+  .foot .i { font-family: var(--mono); font-size: 12px; color: var(--ink-faint); }
+</style></head>
+<body>
+<div class="frame rounded">
+  <div class="label eyebrow">finlake · point-in-time query</div>
+  <h1>Same table, same query. <span>One changed bound.</span></h1>
+  <div class="code"><span class="kw">SELECT</span> <span class="s">val</span> <span class="kw">FROM</span> <span class="s">facts</span> <span class="kw">WHERE</span> period_end = '2017-12-31' <span class="kw">AND</span> filed &lt;= <span class="d" id="qd">'2019-03-14'</span></div>
+  <div class="tl" id="tl">
+    <div class="known" id="known"></div>
+    <div class="axis"></div>
+    <div class="cursor" id="cur"><div class="line"></div><div class="chip" id="curlbl">as_of</div></div>
+  </div>
+  <div class="bottom">
+    <div class="panel tbl">
+      <div class="phead"><span class="t">facts</span><span class="s">append-only · nothing is ever updated</span></div>
+      <table id="rows">
+        <tr><th>period_end</th><th class="num">revenue $M</th><th>accn</th><th>filed</th><th></th></tr>
+      </table>
+    </div>
+    <div class="panel ans" id="ans"><div class="k">FY2017 revenue, as known on</div><div class="mono" id="ansk" style="color:var(--teal);font-size:15px;font-weight:600;margin-top:6px"></div></div>
+  </div>
+  <div class="foot"><span class="m">A restatement never overwrites. It arrives as <b>a new row with a later <span class="mono">filed</span></b>, next to the original.</span><span class="i">illustrative data</span></div>
+</div>
+<script>
+const DAY = 864e5;
+const day = s => Math.round(Date.parse(s + 'T00:00:00Z') / DAY);
+const fmt = d => new Date(d * DAY).toISOString().slice(0, 10);
+const T0 = day('2017-11-01'), T1 = day('2022-03-01');
+const ROWS = [
+  { val: '12,400', accn: '…-18-000021', filed: '2018-02-23', tag: '10-K' },
+  { val: '12,050', accn: '…-19-000187', filed: '2019-08-02', tag: '10-K/A' },
+  { val: '11,870', accn: '…-21-000034', filed: '2021-02-19', tag: 'restated in FY20 10-K' },
+];
+ROWS.forEach(r => r.d = day(r.filed));
+
+// Cursor keyframes: [time s, date]. Holds are pairs with the same date.
+const KF = [
+  [0, '2017-12-01'], [1.0, '2017-12-01'],
+  [2.4, '2018-06-01'], [3.2, '2018-06-01'],
+  [4.4, '2019-03-14'], [6.4, '2019-03-14'],
+  [7.8, '2020-03-02'], [9.2, '2020-03-02'],
+  [10.6, '2021-09-01'], [12.4, '2021-09-01'],
+  [13.6, '2017-12-01'], [14.2, '2017-12-01'],
+].map(([t, s]) => [t, day(s)]);
+window.DURATION = KF[KF.length - 1][0];
+const ease = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+function cursorAt(t) {
+  for (let i = 1; i < KF.length; i++) {
+    const [ta, da] = KF[i - 1], [tb, db] = KF[i];
+    if (t <= tb) return da + (db - da) * ease((t - ta) / (tb - ta || 1));
+  }
+  return KF[KF.length - 1][1];
+}
+
+// Build static DOM.
+const tl = document.getElementById('tl');
+const W = () => tl.clientWidth;
+const xOf = d => (d - T0) / (T1 - T0) * W();
+for (let y = 2018; y <= 2022; y++) {
+  const el = document.createElement('div'); el.className = 'tick'; el.textContent = y;
+  el.style.left = xOf(day(y + '-01-01')) + 'px'; tl.appendChild(el);
+}
+const mks = ROWS.map(r => {
+  const el = document.createElement('div'); el.className = 'mk';
+  el.innerHTML = `<i></i><b>${r.tag}</b>`; el.style.left = xOf(r.d) + 'px'; tl.appendChild(el); return el;
+});
+const tbody = document.getElementById('rows');
+const trs = ROWS.map(r => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>2017-12-31</td><td class="num">${r.val}</td><td>${r.accn}</td><td>${r.filed}</td><td><span class="pill"></span></td>`;
+  tbody.appendChild(tr); return tr;
+});
+const ans = document.getElementById('ans');
+const layers = [{ v: '—', n: 'nothing filed yet, so<br>nothing to know' }]
+  .concat(ROWS.map((r, i) => ({ v: '$' + r.val + 'M', n: i === 0 ? 'the original 10-K' : i === 1 ? 'the amended 10-K/A' : 'the latest restatement' })))
+  .map(o => { const el = document.createElement('div'); el.className = 'layer';
+    el.innerHTML = `<div class="v">${o.v}</div><div class="n">${o.n}</div>`; ans.appendChild(el); return el; });
+
+const mix = (a, b, k) => a.map((x, i) => Math.round(x + (b[i] - x) * k));
+const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const rgb = c => `rgb(${c.join(',')})`;
+const C = { faint: hex('#5f76a0'), muted: hex('#8ba0bf'), ink: hex('#e6edf7'), teal: hex('#2dd4bf'),
+  rowAns: hex('#0f2a3f'), panel: hex('#10203a') };
+
+window.render = function (t) {
+  const d = cursorAt(t);
+  const cur = document.getElementById('cur');
+  cur.style.left = xOf(d) + 'px';
+  const lbl = document.getElementById('curlbl');
+  lbl.textContent = 'as_of ' + fmt(d);
+  // Keep the chip inside the timeline at either end.
+  const half = lbl.offsetWidth / 2, x = xOf(d);
+  lbl.style.marginLeft = (Math.max(half, Math.min(W() - half, x)) - x) + 'px';
+  document.getElementById('ansk').textContent = fmt(d);
+  document.getElementById('known').style.width = Math.max(0, xOf(d)) + 'px';
+  document.getElementById('qd').textContent = `'${fmt(d)}'`;
+  // v[i]: how "public" row i is, softened over ~30 days so crossings fade rather than snap.
+  const v = ROWS.map(r => Math.min(1, Math.max(0, (d - r.d) / 30)));
+  ROWS.forEach((r, i) => {
+    const next = i + 1 < ROWS.length ? v[i + 1] : 0;
+    const isAns = v[i] * (1 - next);
+    const tr = trs[i];
+    const ink = mix(mix(C.faint, C.muted, v[i]), C.ink, isAns);
+    tr.style.color = rgb(ink);
+    tr.style.background = rgb(mix(C.panel, C.rowAns, isAns));
+    tr.style.setProperty('--ans', isAns);
+    const pill = tr.querySelector('.pill');
+    const state = v[i] < .5 ? 'not yet filed' : isAns > .5 ? 'the answer' : 'earlier version';
+    pill.textContent = state;
+    pill.style.color = state === 'the answer' ? '#2dd4bf' : state === 'earlier version' ? '#8ba0bf' : '#5f76a0';
+    pill.style.borderColor = state === 'the answer' ? '#1fa896' : '#33507f';
+    pill.style.background = state === 'the answer' ? '#0e2a2a' : 'transparent';
+    const m = mks[i].querySelector('i'), lb = mks[i].querySelector('b');
+    m.style.borderColor = rgb(mix(C.faint, isAns > .5 ? C.teal : C.muted, v[i]));
+    m.style.background = v[i] > .5 ? rgb(mix(hex('#0a1628'), isAns > .5 ? C.teal : C.muted, .9 * v[i])) : '#0a1628';
+    lb.style.color = rgb(mix(C.faint, isAns > .5 ? C.teal : C.muted, v[i]));
+  });
+  const w = [1 - v[0]].concat(ROWS.map((r, i) => v[i] * (1 - (v[i + 1] || 0))));
+  layers.forEach((el, i) => { el.style.opacity = w[i]; el.style.transform = `translateY(${(1 - w[i]) * 8}px)`; });
+};
+render(4.5);
+</script>
+</body></html>

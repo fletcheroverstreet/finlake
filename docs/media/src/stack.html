@@ -1,0 +1,83 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="tokens.css">
+<style>
+  .frame { padding: 44px 56px; }
+  .eyebrow { color: var(--ink-muted); }
+  h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; margin-top: 10px; }
+  h1 span { color: var(--ink-muted); font-weight: 500; }
+  .row { display: grid; grid-template-columns: 196px 36px 1fr 36px 1fr 36px 186px; align-items: stretch; margin-top: 32px; }
+  .col { display: flex; flex-direction: column; gap: 10px; }
+  .ch { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 2px; }
+  .src { background: var(--navy); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+  .src b { display: block; font-size: 15px; font-weight: 600; }
+  .src span { font-size: 13px; color: var(--ink-muted); }
+  .arrow { display: flex; align-items: center; justify-content: center; }
+  .arrow svg { width: 30px; height: 16px; }
+  .tier { border-radius: 14px; padding: 18px 20px; background: var(--navy); border: 1.5px solid; display: flex; flex-direction: column; }
+  .tier.fl { border-color: var(--blue); } .tier.ls { border-color: var(--teal-dim); }
+  .tier .k { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+  .tier.fl .k { color: var(--blue); } .tier.ls .k { color: var(--teal); }
+  .tier .nm { font-size: 30px; font-weight: 800; letter-spacing: -0.03em; margin: 4px 0 4px; }
+  .tier .ds { font-size: 14.5px; color: var(--ink-muted); line-height: 1.4; margin-bottom: 12px; }
+  .tier ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  .tier li { font-size: 13.5px; line-height: 1.35; padding-left: 16px; position: relative; }
+  .tier li::before { content: ''; position: absolute; left: 0; top: 7px; width: 6px; height: 6px; border-radius: 2px; }
+  .tier.fl li::before { background: var(--blue); } .tier.ls li::before { background: var(--teal); }
+  .tier li code { font-family: var(--mono); font-size: 13px; color: var(--ink); background: var(--navy-raised); padding: 0 5px; border-radius: 4px; }
+  .tier .ft { margin-top: auto; padding-top: 12px; font-family: var(--mono); font-size: 12px; color: var(--ink-faint); border-top: 1px solid var(--border); }
+  .out { background: var(--navy); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+  .out b { display: block; font-size: 15px; font-weight: 600; }
+  .out span { font-family: var(--mono); font-size: 12.5px; color: var(--ink-muted); }
+</style></head>
+<body>
+<div class="frame rounded">
+  <div class="label eyebrow">how the two repositories fit together</div>
+  <h1>Data layer underneath, <span>ranking engine on top.</span></h1>
+  <div class="row">
+    <div class="col">
+      <div class="ch">free sources</div>
+      <div class="src"><b>SEC EDGAR</b><span>filings, XBRL facts</span></div>
+      <div class="src"><b>Yahoo Finance</b><span>prices, estimates</span></div>
+      <div class="src"><b>FRED / ALFRED</b><span>macro, with vintages</span></div>
+      <div class="src"><b>News feeds</b><span>multi-source RSS</span></div>
+    </div>
+    <div class="arrow"><svg viewBox="0 0 30 16"><path d="M0 8h26M20 2l7 6-7 6" stroke="#33507f" stroke-width="2" fill="none"/></svg></div>
+    <div class="tier fl">
+      <div class="k">tier 0 · data layer</div>
+      <div class="nm">finlake</div>
+      <div class="ds">Cached locally. Every read point-in-time.</div>
+      <ul>
+        <li><code>facts</code> table: append-only, bitemporal</li>
+        <li>Raw price bars, adjusted at read time</li>
+        <li>XBRL → clean quarters, Q4 derived</li>
+        <li>42 ratios, statements, news sentiment</li>
+        <li>Refresh tiers: quotes 3 min → macro daily</li>
+      </ul>
+      <div class="ft">finlake.fundamentals("AAPL", as_of=…)</div>
+    </div>
+    <div class="arrow"><svg viewBox="0 0 30 16"><path d="M0 8h26M20 2l7 6-7 6" stroke="#33507f" stroke-width="2" fill="none"/></svg></div>
+    <div class="tier ls">
+      <div class="k">tier 1 · ranking engine</div>
+      <div class="nm">lodestar</div>
+      <div class="ds">Scores every stock, sector-neutral.</div>
+      <ul>
+        <li>7 factor buckets, 26 metrics</li>
+        <li>Z-scored within each industry</li>
+        <li>Composite 0–100, fully attributed</li>
+        <li>Buy / sell ratings at three levels</li>
+        <li>Runs snapshotted, re-scored nightly</li>
+      </ul>
+      <div class="ft">adapter.py · sole finlake import</div>
+    </div>
+    <div class="arrow"><svg viewBox="0 0 30 16"><path d="M0 8h26M20 2l7 6-7 6" stroke="#33507f" stroke-width="2" fill="none"/></svg></div>
+    <div class="col">
+      <div class="ch">what you use</div>
+      <div class="out"><b>CLI</b><span>run · show · audit</span></div>
+      <div class="out"><b>The hub</b><span>9-page Streamlit app</span></div>
+      <div class="out"><b>Ratings</b><span>stock · sector</span></div>
+      <div class="out"><b>CSV export</b><span>--csv ranked.csv</span></div>
+    </div>
+  </div>
+</div>
+<script>window.DURATION = 0;</script>
+</body></html>

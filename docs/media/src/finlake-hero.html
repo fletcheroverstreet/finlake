@@ -1,0 +1,77 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="tokens.css">
+<style>
+  .frame { display: flex; align-items: center; gap: 48px; padding: 0 56px; }
+  .left { flex: 1 1 auto; min-width: 0; }
+  .eyebrow { color: var(--blue); }
+  .word { font-size: 76px; font-weight: 800; letter-spacing: -0.035em; line-height: 1; margin: 14px 0 16px; }
+  .word .dot { color: var(--blue); }
+  .tag { font-size: 19px; line-height: 1.45; color: var(--ink-muted); max-width: 560px; }
+  .tag b { color: var(--ink); font-weight: 600; }
+  .panel { flex: 0 0 540px; background: var(--navy); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .phead { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 18px; background: var(--navy-raised); border-bottom: 1px solid var(--border); }
+  .phead .t { font-family: var(--mono); font-weight: 600; font-size: 15px; }
+  .phead .s { font-family: var(--mono); font-size: 12px; color: var(--ink-faint); }
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 14px; }
+  th { text-align: left; font-weight: 500; color: var(--ink-faint); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 9px 18px 6px; }
+  td { padding: 8px 18px; border-top: 1px solid var(--border); white-space: nowrap; }
+  body.social th:nth-child(1){width:24%} body.social th:nth-child(2){width:18%} body.social th:nth-child(3){width:30%; padding-left:56px} body.social td:nth-child(3){padding-left:56px}
+  td.num { text-align: right; } th.num { text-align: right; }
+  tr.hit td { color: var(--ink); background: #0f2a3f; }
+  tr.hit td:first-child { box-shadow: inset 3px 0 0 var(--teal); }
+  tr.future td { color: var(--ink-faint); }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid; }
+  .pill.ok { color: var(--teal); border-color: var(--teal-dim); background: var(--teal-wash); }
+  .pill.no { color: var(--ink-faint); border-color: var(--border-strong); }
+  .q { padding: 12px 18px; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 14px; color: var(--ink-muted); background: var(--navy-deep); }
+  .q .kw { color: var(--blue); } .q .d { color: var(--teal); font-weight: 600; }
+  /* social layout */
+  body.social .frame { flex-direction: column; align-items: stretch; justify-content: center; gap: 36px; padding: 56px 72px; }
+  body.social .top { display: flex; align-items: flex-end; justify-content: space-between; gap: 40px; }
+  body.social .word { font-size: 104px; }
+  body.social .tag { font-size: 22px; max-width: 640px; }
+  body.social .panel { flex: none; }
+  body.social table { font-size: 16px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; max-width: 300px; }
+  .chip { font-family: var(--mono); font-size: 13px; color: var(--ink-muted); border: 1px solid var(--border-strong); border-radius: 999px; padding: 5px 12px; }
+  .foot { position: absolute; left: 72px; right: 72px; bottom: 26px; display: flex; justify-content: space-between; font-family: var(--mono); font-size: 13px; color: var(--ink-faint); }
+</style></head>
+<body>
+<div class="frame rounded">
+  <div class="grid-bg"></div>
+  <div class="top left" style="position:relative">
+    <div>
+      <div class="label eyebrow">Tier 0 · point-in-time data layer</div>
+      <div class="word">finlake<span class="dot">.</span></div>
+      <div class="tag">Prices, fundamentals, filings, news and macro, cached locally and <b>queryable as of any historical date</b>.</div>
+    </div>
+    <div class="chips social-only">
+      <span class="chip">Python 3.12</span><span class="chip">SQLite + Parquet</span><span class="chip">SEC EDGAR</span><span class="chip">FRED / ALFRED</span><span class="chip">259 tests</span><span class="chip">MIT</span>
+    </div>
+  </div>
+  <div class="panel" style="position:relative">
+    <div class="phead"><span class="t">facts</span><span class="s">append-only · bitemporal · illustrative</span></div>
+    <table>
+      <tr><th>period_end</th><th class="num">revenue $M</th><th>filed</th><th></th></tr>
+      <tr class="hit"><td>2017-12-31</td><td class="num">12,400</td><td>2018-02-23</td><td><span class="pill ok">visible</span></td></tr>
+      <tr class="future"><td>2017-12-31</td><td class="num">12,050</td><td>2019-08-02</td><td><span class="pill no">not yet filed</span></td></tr>
+      <tr class="future"><td>2017-12-31</td><td class="num">11,870</td><td>2021-02-19</td><td><span class="pill no">not yet filed</span></td></tr>
+    </table>
+    <div class="q"><span class="kw">WHERE</span> filed &lt;= <span class="d">'2019-03-14'</span> <span class="cm" style="color:var(--ink-faint)">-- as of that morning</span></div>
+  </div>
+  <div class="foot social-only"><span>github.com/fletcheroverstreet/finlake</span><span>the point-in-time store is not a second database. it is a column.</span></div>
+</div>
+<script>
+  window.DURATION = 0;
+  const social = innerHeight > 400;
+  document.body.classList.toggle('social', social);
+  document.body.classList.toggle('flat', social);
+  if (social) document.querySelector('.cm').textContent = '-- what a reader had that morning';
+  if (!social) document.querySelectorAll('.social-only').forEach(e => e.remove());
+  else {
+    // In the social layout the panel sits under the headline row.
+    const top = document.querySelector('.top');
+    top.classList.remove('left');
+  }
+</script>
+</body></html>
